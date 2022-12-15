@@ -6,6 +6,7 @@ import ujson as json
 
 from secrets import WIFI_SSID, WIFI_PASS
 from sensor import CO2Sensor, COSensor
+from machine import Pin
 
 ADDR = ("192.168.1.69", 5555)
 
@@ -36,9 +37,20 @@ wifi_connect()
 s = CO2Sensor()
 s2 = COSensor()
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+"""
 while True:
     payload = json.dumps({'temperature': s.temp, 'humidity': s.hum, 'co2_ppm': s.co2, 'co_ppm': s2.co})
     sock.sendto(payload, ADDR)
     gc.collect()
     time.sleep(1.0)
+"""
+
+# On a discrete RTC
+s.measure_wait()
+s2.measure()
+payload = json.dumps({'temperature': s.temp, 'humidity': s.hum, 'co2_ppm': s.co2, 'co_ppm': s2.co})
+print(payload)
+sock.sendto(payload, ADDR)
+Pin(22, Pin.OUT).on() # DONE for Makerverse Nano Power Timer HAT
 
