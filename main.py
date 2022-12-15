@@ -8,11 +8,14 @@ from secrets import WIFI_SSID, WIFI_PASS
 from sensor import CO2Sensor, COSensor
 from machine import Pin
 
-ADDR = ("192.168.1.69", 5555)
+ADDR = ("192.168.0.69", 5555)
+
+led = Pin("LED", Pin.OUT)
 
 def wifi_connect():
     rp2.country('AU')
     wlan = network.WLAN(network.STA_IF)
+    led.on()
     wlan.active(True)
     wlan.connect(WIFI_SSID, WIFI_PASS)
 
@@ -27,6 +30,8 @@ def wifi_connect():
     if wlan.status() != 3:
         print('wifi connection failed')
         wlan.active(False)
+    else:
+        led.off()
 
     ip = wlan.ifconfig()[0]
     print('WiFi connected; ip = ' + ip)
@@ -53,4 +58,3 @@ payload = json.dumps({'temperature': s.temp, 'humidity': s.hum, 'co2_ppm': s.co2
 print(payload)
 sock.sendto(payload, ADDR)
 Pin(22, Pin.OUT).on() # DONE for Makerverse Nano Power Timer HAT
-
