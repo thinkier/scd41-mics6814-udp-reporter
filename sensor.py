@@ -16,14 +16,20 @@ class CO2Sensor:
     temp = 0
     hum = 0
     
-    def __init__(self):
+    def __init__(self, task=False):
         global i2c
         breakout_scd41.init(i2c)
         breakout_scd41.start()
 
-        self.sensor_timer = Timer(period=1000, mode=Timer.PERIODIC, callback=self.measure_task)
+        if task:
+            self.sensor_timer = Timer(period=1000, mode=Timer.PERIODIC, callback=self.measure_task)
 
     def measure(self):
+        self.co2, self.temp, self.hum = breakout_scd41.measure()
+
+    def measure_wait(self):
+        while not breakout_scd41.ready():
+            time.sleep_ms(10)
         self.co2, self.temp, self.hum = breakout_scd41.measure()
 
     def measure_task(self, timer: Timer):
@@ -35,10 +41,12 @@ class CO2Sensor:
 class COSensor:
     co = 0
     
-    def __init__(self):
+    def __init__(self, task=False):
         global i2c
         self.gas = BreakoutMICS6814(i2c)
-        self.sensor_timer = Timer(period=1000, mode=Timer.PERIODIC, callback=self.measure_task)
+        
+        if task:
+            self.sensor_timer = Timer(period=1000, mode=Timer.PERIODIC, callback=self.measure_task)
         
     def measure_task(self, timer: Timer):
         self.measure()
