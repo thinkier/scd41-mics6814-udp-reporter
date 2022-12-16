@@ -57,5 +57,7 @@ s2.measure()
 payload = json.dumps({'temperature': s.temp, 'humidity': s.hum, 'co2_ppm': s.co2, 'co_ppm': s2.co})
 print(payload)
 sock.sendto(payload, ADDR)
+time.sleep(1)
+
 DONE.on()
 
